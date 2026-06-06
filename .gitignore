@@ -1,0 +1,44 @@
+# Build artifacts
+build/
+bin/
+obj/
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.dylib
+*.exe
+
+# Debug symbols and compiler outputs
+*.pdb
+*.ilk
+*.idb
+*.exp
+*.lib
+
+# Local/generated challenge data
+resources/references.bin
+resources/references.idx
+resources/references.json
+resources/references.json.gz
+bench-results/
+
+# IDE/editor state
+.vs/
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Logs and local temp files
+*.log
+*.tmp
+*.swp
+*.bak
+
+# OS metadata
+Thumbs.db
+.DS_Store

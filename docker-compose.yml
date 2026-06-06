@@ -1,0 +1,86 @@
+services:
+  api1:
+    image: ghcr.io/pastel123so/pastel-de-c:latest
+    hostname: api1
+    cpuset: "0"
+    logging:
+      driver: "none"
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    environment:
+      RINHA_FD_SOCKET: /sockets/api1.sock
+      CANDIDATE_LIMIT: "${CANDIDATE_LIMIT:-1000}"
+      APPROVAL_THRESHOLD: "${APPROVAL_THRESHOLD:-0.6}"
+      REFERENCES_PATH: /app/resources/references.idx
+      RINHA_PROFILE_EVERY: "${RINHA_PROFILE_EVERY:-0}"
+    volumes:
+      - sockets:/sockets
+    deploy:
+      resources:
+        limits:
+          cpus: "${API_CPUS:-0.40}"
+          memory: "${API_MEMORY:-165MB}"
+
+  api2:
+    image: ghcr.io/pastel123so/pastel-de-c:latest
+    hostname: api2
+    cpuset: "1"
+    logging:
+      driver: "none"
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    environment:
+      RINHA_FD_SOCKET: /sockets/api2.sock
+      CANDIDATE_LIMIT: "${CANDIDATE_LIMIT:-1000}"
+      APPROVAL_THRESHOLD: "${APPROVAL_THRESHOLD:-0.6}"
+      REFERENCES_PATH: /app/resources/references.idx
+      RINHA_PROFILE_EVERY: "${RINHA_PROFILE_EVERY:-0}"
+    volumes:
+      - sockets:/sockets
+    deploy:
+      resources:
+        limits:
+          cpus: "${API_CPUS:-0.40}"
+          memory: "${API_MEMORY:-165MB}"
+
+  lb:
+    image: ghcr.io/pastel123so/pastel-de-c:latest
+    command: ["/app/rinha-lb"]
+    cpuset: "2,3"
+    logging:
+      driver: "none"
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    environment:
+      PORT: "9999"
+      RINHA_LB_PROFILE_EVERY: "${RINHA_PROFILE_EVERY:-0}"
+    volumes:
+      - sockets:/sockets
+    ports:
+      - "9999:9999"
+    depends_on:
+      - api1
+      - api2
+    deploy:
+      resources:
+        limits:
+          cpus: "${LB_CPUS:-0.20}"
+          memory: "${LB_MEMORY:-20MB}"
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  sockets:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: "size=4m,uid=0,gid=0,mode=0777"
